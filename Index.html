@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radiation Types Interactive Quiz</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .hidden { background-color: #ccc; color: #ccc; }
+        button { margin: 5px; padding: 5px 10px; }
+        #score { font-weight: bold; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Radiation Types Interactive Quiz</h1>
+    <div id="controls"></div>
+    <table id="quizTable"></table>
+    <button id="checkAnswers">Check Answers</button>
+    <div id="score"></div>
+
+    <script>
+    const radiationData = [
+        {type: "Alpha Particles", composition: "2 protons, 2 neutrons", ionizing: "Yes", sources: "Heavy element decay", energy: "3-7 MeV", penetration: "Very low", shielding: "Paper, skin"},
+        {type: "Beta Particles", composition: "Electrons or positrons", ionizing: "Yes", sources: "Radioactive decay", energy: "keV to MeV", penetration: "Low to moderate", shielding: "Plastic, aluminum"},
+        {type: "Gamma Rays", composition: "High-energy photons", ionizing: "Yes", sources: "Radioactive decay, cosmic", energy: ">100 keV", penetration: "Very high", shielding: "Lead, concrete"},
+        {type: "X-rays", composition: "High-energy photons", ionizing: "Yes", sources: "Electronic transitions", energy: "100 eV to 100 keV", penetration: "High", shielding: "Lead, concrete"},
+        {type: "UV Radiation", composition: "Photons", ionizing: "Partially", sources: "Sun, welding", energy: "3.1-124 eV", penetration: "Low", shielding: "Sunscreen, UV-blockers"},
+        {type: "Visible Light", composition: "Photons", ionizing: "No", sources: "Sun, lamps", energy: "1.65-3.1 eV", penetration: "Low", shielding: "Opaque materials"},
+        {type: "Infrared", composition: "Photons", ionizing: "No", sources: "Heated objects", energy: "0.001-1.65 eV", penetration: "Low to moderate", shielding: "Reflective materials"},
+        {type: "Microwaves", composition: "Photons", ionizing: "No", sources: "Electronic devices", energy: "1 μeV to 1 meV", penetration: "Moderate", shielding: "Metal mesh"},
+        {type: "Radio Waves", composition: "Photons", ionizing: "No", sources: "Electronic oscillators", energy: "1 peV to 1 μeV", penetration: "High", shielding: "Metal enclosures"},
+        {type: "Cosmic Rays", composition: "High-energy particles", ionizing: "Yes", sources: "Supernovae, solar flares", energy: "10⁶ to >10²⁰ eV", penetration: "Very high", shielding: "Atmosphere, thick materials"}
+    ];
+
+    const properties = ["composition", "ionizing", "sources", "energy", "penetration", "shielding"];
+    let hiddenCells = new Set();
+
+    function createTable() {
+        const table = document.getElementById("quizTable");
+        let html = "<tr><th>Radiation Type</th>";
+        properties.forEach(prop => {
+            html += `<th>${prop.charAt(0).toUpperCase() + prop.slice(1)}</th>`;
+        });
+        html += "</tr>";
+
+        radiationData.forEach((radiation, rowIndex) => {
+            html += `<tr><td>${radiation.type}</td>`;
+            properties.forEach(prop => {
+                const cellId = `cell-${rowIndex}-${prop}`;
+                html += `<td id="${cellId}" onclick="toggleCell('${cellId}')">${radiation[prop]}</td>`;
+            });
+            html += "</tr>";
+        });
+        table.innerHTML = html;
+    }
+
+    function createControls() {
+        const controls = document.getElementById("controls");
+        properties.forEach(prop => {
+            const button = document.createElement("button");
+            button.textContent = `Toggle ${prop.charAt(0).toUpperCase() + prop.slice(1)}`;
+            button.onclick = () => toggleColumn(prop);
+            controls.appendChild(button);
+        });
+    }
+
+    function toggleColumn(property) {
+        const index = properties.indexOf(property) + 1;
+        const cells = document.querySelectorAll(`td:nth-child(${index + 1})`);
+        cells.forEach(cell => {
+            cell.classList.toggle("hidden");
+            toggleCellInSet(cell.id);
+        });
+    }
+
+    function toggleCell(cellId) {
+        const cell = document.getElementById(cellId);
+        cell.classList.toggle("hidden");
+        toggleCellInSet(cellId);
+    }
+
+    function toggleCellInSet(cellId) {
+        if (hiddenCells.has(cellId)) {
+            hiddenCells.delete(cellId);
+        } else {
+            hiddenCells.add(cellId);
+        }
+    }
+
+    function checkAnswers() {
+        let correct = 0;
+        let total = hiddenCells.size;
+        hiddenCells.forEach(cellId => {
+            if (document.getElementById(cellId).classList.contains("hidden")) {
+                correct++;
+            }
+        });
+        const scoreElement = document.getElementById("score");
+        scoreElement.textContent = `Score: ${correct} out of ${total}`;
+    }
+
+    createTable();
+    createControls();
+    document.getElementById("checkAnswers").addEventListener("click", checkAnswers);
+    </script>
+</body>
+</html>
